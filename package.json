@@ -1,0 +1,20 @@
+{
+  "name": "MapBot",
+  "version": "0.0.0",
+  "description": "Slack Bot that shows you where to go",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "botkit": "howdyai/botkit",
+    "dotenv": "^2.0.0",
+    "redis": "^2.4.2"
+  }
+}
