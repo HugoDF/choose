@@ -6,6 +6,7 @@ var Botkit = require('botkit');
 var redisConfig = {"url": process.env.REDIS_URL}
 var redisStorage = require('botkit/lib/storage/redis_storage')(redisConfig);
 var utils = require('./utils');
+var path = require('path');
 
 if(process.env.LOCAL_REDIS){
   // reset redis to defaults
@@ -38,6 +39,8 @@ controller.setupWebserver((process.env.PORT || process.env.BOTKIT_PORT),function
       res.send('Success!');
     }
   });
+  webserver.set('views', path.join(__dirname, 'views'));
+  webserver.set('view engine', 'hbs');
   webserver.use('/', require('./server'));
 });
 
@@ -51,7 +54,7 @@ function trackBot(bot) {
 controller.on('slash_command',function(bot,message) {
   //TODO: verify message using utils.verifyMessage
   var options = message.text.split(' ');
-  var pick = Math.round(Math.random() * (options.length));
+  var pick = Math.round(Math.random() * (options.length-1));
   var pickOption = options[pick];
   // reply to slash command
   var reply = "*" + pickOption + "*" + " from: _" + message.text + "_";
@@ -59,7 +62,7 @@ controller.on('slash_command',function(bot,message) {
 
   //gather analytics to populate dashboard
   
-  var userId = message.team_domain + ":" + message.user;
+  var userId = message.user;
   controller.storage.users.get(userId, function(err, user){
     if(!user){
       user = {
@@ -68,18 +71,20 @@ controller.on('slash_command',function(bot,message) {
     }
     var today = new Date(Date.now());
     var todayFormatted = utils.formatDate(today);
-    if(!user.count){
-      user.count = 0
+    if(!user[todayFormatted]){
+      user[todayFormatted] = 0
     }
-    user.count += 1;
+    user[todayFormatted] += 1;
+    count = user[todayFormatted];
     controller.storage.users.save(user, function(err){
       if(err){
         console.log('Error storing user ' + user);
       }
-      console.log("Stored: " + user.id + ", count:  " + user.count)
-      if(user.count%5 === 0){
-        bot.replyPrivate(message, reply + "\n" + "You have made 5 decisions without their cognitive overhead");
+      console.log("Stored: " + user.id + ", count:  " + count)
+      if(count%5 === 0 || count===1 ){
+        reply += "\n" + "You have made " + count + " decision(s) without their cognitive overhead\nThat means you've saved around " + count*10 + " minutes in decision-time today.";
       }
+      bot.replyPrivate(message, reply);
     });
   });
 });

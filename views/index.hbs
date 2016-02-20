@@ -1,0 +1,14 @@
+{{{button}}}
+{{unless teams.length}}
+<div>Teams: {{teams.length}}</div>
+{{/unless}}
+{{unless users.length}}
+<div>Users: {{users.length}}</div>
+{{/unless}}
+{{#each teams}}
+  {{this}}
+{{/each}}
+{{#each users}}
+  {{this.user}}
+  {{{today}}}
+{{/each}}
