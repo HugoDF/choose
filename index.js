@@ -7,6 +7,7 @@ var redisConfig = {"url": process.env.REDIS_URL}
 var redisStorage = require('botkit/lib/storage/redis_storage')(redisConfig);
 var utils = require('./utils');
 var path = require('path');
+var hbs = require('./utils/helpers.js');
 
 if(process.env.LOCAL_REDIS){
   // reset redis to defaults
@@ -71,11 +72,11 @@ controller.on('slash_command',function(bot,message) {
     }
     var today = new Date(Date.now());
     var todayFormatted = utils.formatDate(today);
-    if(!user[todayFormatted]){
-      user[todayFormatted] = 0
+    if(!user.count){
+      user.count[todayFormatted] = 0
     }
-    user[todayFormatted] += 1;
-    count = user[todayFormatted];
+    user.count[todayFormatted] += 1;
+    count = user.count[todayFormatted];
     controller.storage.users.save(user, function(err){
       if(err){
         console.log('Error storing user ' + user);

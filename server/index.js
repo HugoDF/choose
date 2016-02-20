@@ -12,18 +12,17 @@ if(process.env.LOCAL_REDIS){
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  var button = '<a href="https://slack.com/oauth/authorize?scope=commands&client_id=22163459079.22164560934"><img alt="Add to Slack" height="40" width="139" src="https://platform.slack-edge.com/img/add_to_slack.png" srcset="https://platform.slack-edge.com/img/add_to_slack.png 1x, https://platform.slack-edge.com/img/add_to_slack@2x.png 2x"></a>';
   redisStorage.teams.all(function(err, teams){
     if(!err&&teams != null){
       redisStorage.users.all(function(err, users){
         console.log(users);
         var today = new Date(Date.now());
         var todayFormatted = utils.formatDate(today);
-        res.render('index', {button: button, teams: teams, users: users, today: todayFormatted});
+        res.render('index', {teams: teams, users: users, today: todayFormatted});
       });
     }
     else{
-      res.send("No teams" + button);
+      res.render('error');
     }
   });
 });
