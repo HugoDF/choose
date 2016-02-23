@@ -5,20 +5,3 @@
 {{#if users.length}}
 <div>Users: {{users.length}}</div>
 {{/if}}
-<hr/>
-{{#each teams}}
-  <div>{{this.name}}</div>
-  {{#each ../users}}
-    {{#ifeq this.team_id ../id}}
-      <div>{{this.user}}:
-        {{#each this as |value key|}}
-          {{#ifeq key ../../../today}}
-            <div>today: {{this}}</div>
-          {{/ifeq}}
-        {{/each}}
-      </div>
-    {{/ifeq}}
-  {{/each}}
-  <hr/>
-  {{!teams}}
-{{/each}}

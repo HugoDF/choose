@@ -13,7 +13,7 @@ if(process.env.LOCAL_REDIS){
   // reset redis to defaults
   redisStorage = require('botkit/lib/storage/redis_storage')();
 }
-  
+
 if (!process.env.SLACK_CLIENT_ID || !process.env.SLACK_CLIENT_SECRET || !process.env.BOTKIT_PORT) {
   console.log('Error: Specify SLACK_CLIENT_ID SLACK_CLIENT_SECRET and BOTKIT_PORT in environment');
   process.exit(1);
@@ -62,7 +62,7 @@ controller.on('slash_command',function(bot,message) {
   // bot.replyPrivate(message, reply);
 
   //gather analytics to populate dashboard
-  
+
   var userId = message.user;
   controller.storage.users.get(userId, function(err, user){
     if(!user){
@@ -73,17 +73,34 @@ controller.on('slash_command',function(bot,message) {
     var today = new Date(Date.now());
     var todayFormatted = utils.formatDate(today);
     if(!user.count){
-      user.count[todayFormatted] = 0
+      user.count = {};
+      user.count[todayFormatted] = 0;
     }
     user.count[todayFormatted] += 1;
-    count = user.count[todayFormatted];
+    var count = user.count[todayFormatted];
+    var totalCount = 0;
+    for(k in user.count){
+      totalCount += user.count[k];
+    }
+    user.totalCount = totalCount;
     controller.storage.users.save(user, function(err){
       if(err){
         console.log('Error storing user ' + user);
       }
-      console.log("Stored: " + user.id + ", count:  " + count)
-      if(count%5 === 0 || count===1 ){
-        reply += "\n" + "You have made " + count + " decision(s) without their cognitive overhead\nThat means you've saved around " + count*10 + " minutes in decision-time today.";
+      // console.log("Stored: " + user.id + ", count:  " + totalCount + ", day: " + count);
+      var timeSaved = count * 10;
+      var isLevel = utils.isLevel(totalCount);
+      if(totalCount%5 === 0 && !isLevel){
+        var conversion = utils.getFunnyConversion();
+        var converted = timeSaved/conversion.minutesToComplete;
+        var msg = "You've saved the equivalent of " + (Number.isInteger(converted)? converted :converted.toFixed(2)) + " " + conversion.text + " (" + timeSaved + " minutes)" + " in cognitive load today, keep it up :simple_smile:";
+        reply += "\n" + msg;
+      }
+      if(totalCount === 1 || isLevel && totalCount%5 != 0){
+        var conversion = utils.getFunnyConversion();
+        var converted = timeSaved/conversion.minutesToComplete;
+        var msg = "Since you've installed Choose, you've saved the equivalent of " + (Number.isInteger(converted)? converted :converted.toFixed(2)) + " " + conversion.text + " (" + timeSaved + " minutes :clock1:)" + " in cognitive load.";
+        reply += "\n" + msg;
       }
       bot.replyPrivate(message, reply);
     });
