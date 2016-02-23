@@ -8,6 +8,7 @@ var redisStorage = require('botkit/lib/storage/redis_storage')(redisConfig);
 var utils = require('./utils');
 var path = require('path');
 var hbs = require('./utils/helpers.js');
+var express = require('express');
 
 if(process.env.LOCAL_REDIS){
   // reset redis to defaults
@@ -40,6 +41,7 @@ controller.setupWebserver((process.env.PORT || process.env.BOTKIT_PORT),function
       res.send('Success!');
     }
   });
+  webserver.use(express.static(__dirname + '/public'));
   webserver.set('views', path.join(__dirname, 'views'));
   webserver.set('view engine', 'hbs');
   webserver.use('/', require('./server'));
