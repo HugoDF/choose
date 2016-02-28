@@ -1,7 +1,7 @@
 {
-  "name": "MapBot",
+  "name": "Choose",
   "version": "0.0.0",
-  "description": "Slack Bot that shows you where to go",
+  "description": "Slack Bot that chooses for you",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
